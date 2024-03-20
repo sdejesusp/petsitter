@@ -2,7 +2,16 @@ openapi: 3.0.3
 info:
   title: PetSitter API
   version: "01"
+servers:
+  - url: http://localhost:3000/
 paths:
+  /welcome:
+    get:
+      summary: Welcome Message
+      responses:
+        "200":
+          description: Welcome
+
   /users:
     post:
       summary: Register User

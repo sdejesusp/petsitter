@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    env_file:
+      - .env
+    container_name: web
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/usr/src/app
+    command: air cmd/main.go -b 0.0.0.0
+  db:
+    image: postgres:alpine
+    container_name: db
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_NAME=${DB_NAME}
+    volumes:
+      - petsitter-db:/var/lib/postgresql/data
+
+volumes:
+  petsitter-db:
