@@ -6,21 +6,22 @@ import (
 )
 
 func main() {
-    app := fiber.New()
+	app := fiber.New()
 
-    // Swagger configuration
-    cfg := swagger.Config{
-        BasePath: "/",
-        FilePath: "./docs/petsitter.yaml",
-        Path:     "swagger",
-        Title:    "Petsitter API Docs",
-    }
-    
-    app.Use(swagger.New(cfg))    
+	// Swagger configuration
+	cfg := swagger.Config{
+		BasePath: "/",
+		FilePath: "./docs/petsitter.yaml",
+		Path:     "swagger",
+		Title:    "Petsitter API Docs",
+		CacheAge: 1,
+	}
 
-    app.Get("/welcome", func(c *fiber.Ctx) error {
-        return c.SendString("Hello, Nice!")
-    })
+	app.Use(swagger.New(cfg))
 
-    app.Listen(":3000")
+	app.Get("/welcome", func(c *fiber.Ctx) error {
+		return c.SendString("Welcome to the PetSitter API")
+	})
+
+	app.Listen(":3000")
 }
