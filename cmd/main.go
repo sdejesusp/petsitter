@@ -3,9 +3,13 @@ package main
 import (
 	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2"
+	"github.com/sdejesusp/petsitter/database"
 )
 
 func main() {
+    // Stablish connection to the DB
+    database.ConnectDb()
+
 	app := fiber.New()
 
 	// Swagger configuration
