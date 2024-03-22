@@ -167,6 +167,7 @@ paths:
                 $ref: "#/components/schemas/Job"
     delete:
       summary: Delete Job
+      description: Delete a job by it ID
       tags:
         - Jobs
       responses:
