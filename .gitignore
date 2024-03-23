@@ -51,6 +51,7 @@ _testmain.go
 /test/pass.out
 /test/run.out
 /test/times.out
+/tmp
 
 post_cmd.txt
 pre_cmd.txt

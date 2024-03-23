@@ -6,7 +6,7 @@ type User struct {
 	FullName  string
 	Email     string
 	Password  string
-	Roles     []string
+	// Roles     []string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
