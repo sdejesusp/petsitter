@@ -7,8 +7,8 @@ import (
 )
 
 func main() {
-    // Stablish connection to the DB
-    database.ConnectDb()
+	// Stablish connection to the DB
+	database.ConnectDb()
 
 	app := fiber.New()
 
@@ -23,9 +23,8 @@ func main() {
 
 	app.Use(swagger.New(cfg))
 
-	app.Get("/welcome", func(c *fiber.Ctx) error {
-		return c.SendString("Welcome to the PetSitter API")
-	})
+	// API routes
+	setupRoutes(app)
 
 	app.Listen(":3000")
 }
