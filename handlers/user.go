@@ -89,3 +89,22 @@ func ModifyUserWithId(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(response)
 }
+
+func DeleteUserWithId(c *fiber.Ctx) error {
+	id, err := c.ParamsInt("id")
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
+	}
+
+	var user models.User
+	if err := FindUser(id, &user); err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(err.Error())
+	}
+
+	if err := database.DB.Db.Delete(&user).Error; err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(err.Error())
+	}
+
+	return c.Status(fiber.StatusNoContent).SendString("")
+}
