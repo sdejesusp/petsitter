@@ -4,34 +4,29 @@ info:
   version: "0.1"
 tags:
   - name: Welcome
-    description: Welcome Message From The API
+    description: Welcome
   - name: Users
-    description: User Operations
+    description: User-related operations
   - name: Jobs
-    description: Job Operations
-  - name: JobApplications
-    description: Job Application Operations
+    description: Job-related operations
 servers:
   - url: http://localhost:3000/
 paths:
   /welcome:
     get:
-      summary: Welcome Message
       tags:
         - Welcome
+      summary: Welcome Message
+      operationId: Welcome
       responses:
         "200":
           description: Welcome to the PetSitter API
   /users:
     post:
-      summary: Register User
       tags:
         - Users
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/User"
+      summary: Register User
+      operationId: CreateUser
       responses:
         "201":
           description: Created
@@ -39,10 +34,27 @@ paths:
             Location:
               schema:
                 type: string
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/User"
+                  - properties:
+                      id:
+                        type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/User"
+                - properties:
+                    password:
+                      type: string
   /users/{id}:
     parameters:
       - schema:
-          type: integer
+          type: string
         name: id
         in: path
         required: true
@@ -50,22 +62,23 @@ paths:
       tags:
         - Users
       summary: View User
+      operationId: GetUserWithId
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                allOf:
+                  - $ref: "#/components/schemas/User"
+                  - properties:
+                      id:
+                        type: string
     put:
-      summary: Modify User
       tags:
         - Users
-      requestBody:
-        content:
-          appication/json:
-            schema:
-              $ref: "#/components/schemas/User"
+      summary: Modify User
+      operationId: ModifyUserWithId
       responses:
         "200":
           description: OK
@@ -73,46 +86,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
-    delete:
-      summary: Delete User
-      tags:
-        - Users
-      responses:
-        "204":
-          description: No Conntent
-  /users/{id}/jobs:
-    parameters:
-      - schema:
-          type: integer
-        name: id
-        in: path
-        required: true
-    get:
-      tags:
-        - Users
-      summary: List Jobs For User
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  items:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Job"
-  /jobs:
-    post:
-      summary: Create Job
-      tags:
-        - Jobs
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Job"
+              $ref: "#/components/schemas/User"
+    delete:
+      tags:
+        - Users
+      summary: Delete User
+      operationId: DeleteUserWithId
+      responses:
+        "204":
+          description: No Content
+  /jobs:
+    post:
+      tags:
+        - Jobs
+      summary: Create Job
+      operationId: CreateJob
       responses:
         "201":
           description: Created
@@ -120,10 +112,16 @@ paths:
             Location:
               schema:
                 type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Job"
     get:
-      summary: List All Jobs
       tags:
         - Jobs
+      summary: List All Jobs
+      operationId: ListAllJobs
       responses:
         "200":
           description: OK
@@ -136,17 +134,53 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Job"
+              examples:
+                with-some-data:
+                  summary: With some data
+                  value:
+                    items:
+                      - id: 123
+                        creator_user_id: 345
+                        start_time: 2020-06-01T00:00:00Z
+                        end_time: 2020-06-02T00:00:00Z
+                        dog:
+                          name: Fido
+                          age: 3
+                          breed: Doberman
+                          size: medium
+                        activity: walk
+                      - id: 234
+                        creator_user_id: 345
+                        start_time: 2020-06-01T00:00:00Z
+                        end_time: 2020-06-03T00:00:00Z
+                        dog:
+                          name: Rex
+                          age: 2
+                          breed: Rottweiler
+                          size: large
+                        activity: sit
+                      - id: 234
+                        creator_user_id: 345
+                        start_time: 2020-06-01T00:00:00Z
+                        end_time: 2020-06-02T00:00:00Z
+                        dog:
+                          name: Blossom
+                          age: 2
+                          breed: Rottweiler
+                          size: large
+                        activity: walk
   /jobs/{id}:
     parameters:
       - schema:
-          type: integer
+          type: string
         name: id
         in: path
         required: true
     get:
-      summary: View Job
       tags:
         - Jobs
+      summary: View Job
+      operationId: GetJobWithId
       responses:
         "200":
           description: OK
@@ -155,9 +189,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/Job"
     put:
-      summary: Modify Job
       tags:
         - Jobs
+      summary: Modify Job
+      operationId: ModifyJobWithId
       responses:
         "200":
           description: OK
@@ -165,30 +200,217 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Job"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Job"
     delete:
-      summary: Delete Job
-      description: Delete a job by it ID
       tags:
         - Jobs
+      summary: Delete Job
+      operationId: DeleteJobWithId
       responses:
         "204":
           description: No Content
   /jobs/{id}/job-applications:
     parameters:
       - schema:
-          type: integer
+          type: string
         name: id
         in: path
         required: true
     get:
-      summary: List Application For Job
       tags:
         - Jobs
+      summary: List Applications For Job
+      operationId: GetApplicationsForJob
       responses:
         "200":
           description: OK
           content:
             application/json:
+              examples:
+                empty:
+                  summary: Zero Job Applications
+                  value:
+                    items: []
+                two-items:
+                  summary: Two Job Applications
+                  value:
+                    items:
+                      - id: 123
+                        user_id: 123
+                        job_id: 123
+                        status: PENDING
+                      - id: 123
+                        user_id: 123
+                        job_id: 123
+                        status: COMPLETE
+                many:
+                  summary: Many Job Applications
+                  value:
+                    items:
+                      - id: 0
+                        user_id: 358
+                        job_id: 4012
+                        status: COMPLETE
+                      - id: 1
+                        user_id: 3089
+                        job_id: 3902
+                        status: PENDING
+                      - id: 2
+                        user_id: 4040
+                        job_id: 5269
+                        status: PENDING
+                      - id: 3
+                        user_id: 5636
+                        job_id: 8420
+                        status: PENDING
+                      - id: 4
+                        user_id: 9540
+                        job_id: 9505
+                        status: COMPLETE
+                      - id: 5
+                        user_id: 9873
+                        job_id: 3215
+                        status: PENDING
+                      - id: 6
+                        user_id: 6032
+                        job_id: 7365
+                        status: COMPLETE
+                      - id: 7
+                        user_id: 5999
+                        job_id: 1159
+                        status: COMPLETE
+                      - id: 8
+                        user_id: 2897
+                        job_id: 7982
+                        status: COMPLETE
+                      - id: 9
+                        user_id: 227
+                        job_id: 9245
+                        status: CANCELLED
+                      - id: 10
+                        user_id: 741
+                        job_id: 2752
+                        status: CANCELLED
+                      - id: 11
+                        user_id: 9059
+                        job_id: 338
+                        status: PENDING
+                      - id: 12
+                        user_id: 1379
+                        job_id: 4531
+                        status: COMPLETE
+                      - id: 13
+                        user_id: 2031
+                        job_id: 9375
+                        status: COMPLETE
+                      - id: 14
+                        user_id: 3643
+                        job_id: 5175
+                        status: CANCELLED
+                      - id: 15
+                        user_id: 5470
+                        job_id: 831
+                        status: CANCELLED
+                      - id: 16
+                        user_id: 3265
+                        job_id: 5597
+                        status: PENDING
+                      - id: 17
+                        user_id: 2815
+                        job_id: 7719
+                        status: PENDING
+                      - id: 18
+                        user_id: 8306
+                        job_id: 679
+                        status: PENDING
+                      - id: 19
+                        user_id: 9742
+                        job_id: 8239
+                        status: PENDING
+                      - id: 20
+                        user_id: 4851
+                        job_id: 940
+                        status: PENDING
+                      - id: 21
+                        user_id: 6700
+                        job_id: 4040
+                        status: PENDING
+                      - id: 22
+                        user_id: 7067
+                        job_id: 6016
+                        status: PENDING
+                      - id: 23
+                        user_id: 3265
+                        job_id: 1822
+                        status: PENDING
+                      - id: 24
+                        user_id: 8333
+                        job_id: 9988
+                        status: PENDING
+                      - id: 25
+                        user_id: 7543
+                        job_id: 9307
+                        status: PENDING
+                      - id: 26
+                        user_id: 5429
+                        job_id: 7511
+                        status: COMPLETE
+                      - id: 27
+                        user_id: 3576
+                        job_id: 1710
+                        status: PENDING
+                      - id: 28
+                        user_id: 590
+                        job_id: 2634
+                        status: COMPLETE
+                      - id: 29
+                        user_id: 2327
+                        job_id: 7205
+                        status: CANCELLED
+                      - id: 30
+                        user_id: 2193
+                        job_id: 7421
+                        status: COMPLETE
+                      - id: 31
+                        user_id: 5014
+                        job_id: 6781
+                        status: CANCELLED
+                      - id: 32
+                        user_id: 9216
+                        job_id: 8047
+                        status: COMPLETE
+                      - id: 33
+                        user_id: 3369
+                        job_id: 7438
+                        status: CANCELLED
+                      - id: 34
+                        user_id: 9825
+                        job_id: 6758
+                        status: PENDING
+                      - id: 35
+                        user_id: 3250
+                        job_id: 7760
+                        status: COMPLETE
+                      - id: 36
+                        user_id: 1552
+                        job_id: 4030
+                        status: COMPLETE
+                      - id: 37
+                        user_id: 9221
+                        job_id: 3971
+                        status: CANCELLED
+                      - id: 38
+                        user_id: 6816
+                        job_id: 7878
+                        status: PENDING
+                      - id: 39
+                        user_id: 6109
+                        job_id: 4060
+                        status: CANCELLED
               schema:
                 type: object
                 properties:
@@ -197,9 +419,10 @@ paths:
                     items:
                       $ref: "#/components/schemas/JobApplication"
     post:
-      summary: Create Job Application
       tags:
         - Jobs
+      summary: Create Job Application
+      operationId: CreateJobApplication
       responses:
         "201":
           description: Created
@@ -211,18 +434,247 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "$/components/schemas/JobApplication"
+              $ref: "#/components/schemas/JobApplication"
+  /users/{id}/jobs:
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      tags:
+        - Users
+      summary: List Jobs For User
+      operationId: ListJobsForUser
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Job"
+  /users/{id}/job-applications:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: List Applications For User
+      tags:
+        - Users
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              examples:
+                empty:
+                  summary: Zero Job Applications
+                  value:
+                    items: []
+                two-items:
+                  summary: Two Job Applications
+                  value:
+                    items:
+                      - id: 123
+                        user_id: 123
+                        job_id: 123
+                        status: PENDING
+                      - id: 123
+                        user_id: 123
+                        job_id: 123
+                        status: COMPLETE
+                many:
+                  summary: Many Job Applications
+                  value:
+                    items:
+                      - id: 0
+                        user_id: 358
+                        job_id: 4012
+                        status: COMPLETE
+                      - id: 1
+                        user_id: 3089
+                        job_id: 3902
+                        status: PENDING
+                      - id: 2
+                        user_id: 4040
+                        job_id: 5269
+                        status: PENDING
+                      - id: 3
+                        user_id: 5636
+                        job_id: 8420
+                        status: PENDING
+                      - id: 4
+                        user_id: 9540
+                        job_id: 9505
+                        status: COMPLETE
+                      - id: 5
+                        user_id: 9873
+                        job_id: 3215
+                        status: PENDING
+                      - id: 6
+                        user_id: 6032
+                        job_id: 7365
+                        status: COMPLETE
+                      - id: 7
+                        user_id: 5999
+                        job_id: 1159
+                        status: COMPLETE
+                      - id: 8
+                        user_id: 2897
+                        job_id: 7982
+                        status: COMPLETE
+                      - id: 9
+                        user_id: 227
+                        job_id: 9245
+                        status: CANCELLED
+                      - id: 10
+                        user_id: 741
+                        job_id: 2752
+                        status: CANCELLED
+                      - id: 11
+                        user_id: 9059
+                        job_id: 338
+                        status: PENDING
+                      - id: 12
+                        user_id: 1379
+                        job_id: 4531
+                        status: COMPLETE
+                      - id: 13
+                        user_id: 2031
+                        job_id: 9375
+                        status: COMPLETE
+                      - id: 14
+                        user_id: 3643
+                        job_id: 5175
+                        status: CANCELLED
+                      - id: 15
+                        user_id: 5470
+                        job_id: 831
+                        status: CANCELLED
+                      - id: 16
+                        user_id: 3265
+                        job_id: 5597
+                        status: PENDING
+                      - id: 17
+                        user_id: 2815
+                        job_id: 7719
+                        status: PENDING
+                      - id: 18
+                        user_id: 8306
+                        job_id: 679
+                        status: PENDING
+                      - id: 19
+                        user_id: 9742
+                        job_id: 8239
+                        status: PENDING
+                      - id: 20
+                        user_id: 4851
+                        job_id: 940
+                        status: PENDING
+                      - id: 21
+                        user_id: 6700
+                        job_id: 4040
+                        status: PENDING
+                      - id: 22
+                        user_id: 7067
+                        job_id: 6016
+                        status: PENDING
+                      - id: 23
+                        user_id: 3265
+                        job_id: 1822
+                        status: PENDING
+                      - id: 24
+                        user_id: 8333
+                        job_id: 9988
+                        status: PENDING
+                      - id: 25
+                        user_id: 7543
+                        job_id: 9307
+                        status: PENDING
+                      - id: 26
+                        user_id: 5429
+                        job_id: 7511
+                        status: COMPLETE
+                      - id: 27
+                        user_id: 3576
+                        job_id: 1710
+                        status: PENDING
+                      - id: 28
+                        user_id: 590
+                        job_id: 2634
+                        status: COMPLETE
+                      - id: 29
+                        user_id: 2327
+                        job_id: 7205
+                        status: CANCELLED
+                      - id: 30
+                        user_id: 2193
+                        job_id: 7421
+                        status: COMPLETE
+                      - id: 31
+                        user_id: 5014
+                        job_id: 6781
+                        status: CANCELLED
+                      - id: 32
+                        user_id: 9216
+                        job_id: 8047
+                        status: COMPLETE
+                      - id: 33
+                        user_id: 3369
+                        job_id: 7438
+                        status: CANCELLED
+                      - id: 34
+                        user_id: 9825
+                        job_id: 6758
+                        status: PENDING
+                      - id: 35
+                        user_id: 3250
+                        job_id: 7760
+                        status: COMPLETE
+                      - id: 36
+                        user_id: 1552
+                        job_id: 4030
+                        status: COMPLETE
+                      - id: 37
+                        user_id: 9221
+                        job_id: 3971
+                        status: CANCELLED
+                      - id: 38
+                        user_id: 6816
+                        job_id: 7878
+                        status: PENDING
+                      - id: 39
+                        user_id: 6109
+                        job_id: 4060
+                        status: CANCELLED
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/JobApplication"
   /job-applications/{id}:
     parameters:
       - schema:
-          type: integer
+          type: string
         name: id
         in: path
         required: true
     put:
-      summary: Modify Job Application
       tags:
-        - JobApplications
+        - Jobs
+      summary: Modify Job Application
+      operationId: ModifyJobApplicationWithId
       requestBody:
         description: Update the application details
         content:
@@ -236,17 +688,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/JobApplication"
-
 components:
   schemas:
     User:
       type: object
       properties:
-        id:
-          type: integer
         email:
-          type: string
-        password:
           type: string
         full_name:
           type: string
@@ -257,8 +704,6 @@ components:
     Job:
       type: object
       properties:
-        id:
-          type: integer
         creator_user_id:
           type: integer
         start_time:
