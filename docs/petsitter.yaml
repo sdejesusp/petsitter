@@ -85,7 +85,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                allOf:
+                  - $ref: "#/components/schemas/User"
+                  - properties:
+                      id:
+                        type: integer
       requestBody:
         content:
           application/json:

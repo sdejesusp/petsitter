@@ -55,3 +55,37 @@ func GetUserWithId(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(response)
 }
+
+func ModifyUserWithId(c *fiber.Ctx) error {
+	id, err := c.ParamsInt("id")
+
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(err.Error())
+	}
+
+	var user models.User
+	if err := FindUser(id, &user); err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(err.Error())
+	}
+
+	type UpdateFields struct {
+		FullName string   `json:"full_name"`
+		Email    string   `json:"email"`
+		Roles    []string `json:"roles" gorm:"serializer:json"`
+	}
+
+	var updateData UpdateFields
+
+	if c.BodyParser(&updateData); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
+	}
+
+	user.FullName = updateData.FullName
+	user.Email = updateData.Email
+	user.Roles = updateData.Roles
+
+	database.DB.Db.Save(&user)
+	response := CreateUserResponse(user)
+
+	return c.Status(fiber.StatusOK).JSON(response)
+}
