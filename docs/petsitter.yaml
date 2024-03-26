@@ -18,15 +18,36 @@ paths:
         - Welcome
       summary: Welcome Message
       operationId: Welcome
+      security: []
       responses:
         "200":
           description: Welcome to the PetSitter API
+  /token:
+    post:
+      tags:
+        - Users
+      summary: Get Token
+      operationId: GetToken
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCredential"
+      responses:
+        "200":
+          description: Login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserAuthResponse"
   /users:
     post:
       tags:
         - Users
       summary: Register User
       operationId: CreateUser
+      security: []
       responses:
         "201":
           description: Created
@@ -740,3 +761,31 @@ components:
           type: integer
         job_id:
           type: integer
+    UserCredential:
+      type: object
+      properties:
+        email:
+          type: string
+          example: john.doug@email.com
+        password:
+          type: string
+          example: p1passw@123
+    UserAuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: uXp0tireitieutriiut3453...zse3qY3ia
+        tokenType:
+          type: string
+          example: Bearer
+        expires:
+          type: integer
+          example: 3600
+  securitySchemes:
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - jwt: []
