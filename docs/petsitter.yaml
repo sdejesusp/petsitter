@@ -72,6 +72,26 @@ paths:
                 - properties:
                     password:
                       type: string
+    get:
+      tags:
+        - Users
+      summary: Retrieve All Users (Admin Only)
+      operationId: GetdoUsers
+      responses:
+        "200":
+          description: Returns All Register Users
+          content:
+            application/json:
+              schema:
+                properties:
+                  totalCount:
+                    type: integer
+                  sequenceIndex:
+                    type: integer
+                  users:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/User"
   /users/{id}:
     parameters:
       - schema:
@@ -124,6 +144,23 @@ paths:
       responses:
         "204":
           description: No Content
+  /users/profile:
+    get:
+      tags:
+        - Users
+      summary: Get User Profile
+      operationId: GetUserProfile
+      responses:
+        "200":
+          description: Return The User Information
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/User"
+                  - properties:
+                      id:
+                        type: integer
   /jobs:
     post:
       tags:
@@ -720,7 +757,7 @@ components:
       properties:
         email:
           type: string
-        full_name:
+        fullName:
           type: string
         roles:
           type: array
@@ -729,11 +766,11 @@ components:
     Job:
       type: object
       properties:
-        creator_user_id:
+        creatorUserId:
           type: integer
-        start_time:
+        startTime:
           type: string
-        end_time:
+        endTime:
           type: string
         activity:
           type: string
