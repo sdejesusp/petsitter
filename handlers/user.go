@@ -18,6 +18,19 @@ import (
 	"github.com/sdejesusp/petsitter/models"
 )
 
+// USER error codes
+// Range 1000 - 1999
+const (
+	TokenBodyParse         = 1000
+	TokenInvalidEmail      = 1001
+	TokenBadCredencial     = 1002
+	UserCannotCreate       = 1003
+	UserUnauthorizeRequest = 1004
+	UserInvalidId          = 1005
+	UserNotFound           = 1006
+	ModifyBodyParse        = 1007
+)
+
 type User struct {
 	ID       uint64   `json:"id"`
 	FullName string   `json:"fullName"`
@@ -81,7 +94,8 @@ func GetToken(c *fiber.Ctx) error {
 	var body request
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "cannot parse json",
+			"message":   "Cannot parse json",
+			"errorCode": TokenBodyParse,
 		})
 	}
 
@@ -90,13 +104,15 @@ func GetToken(c *fiber.Ctx) error {
 	var user models.User
 	if err := FindUserWithEmail(body.Email, &user); err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "bad credentials",
+			"message":   "Bad Credentials",
+			"errorCode": TokenInvalidEmail,
 		})
 	}
 
 	if body.Email != user.Email || !CheckPasswordHash(body.Password, user.Password) {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "bad credentials",
+			"message":   "Bad Credentials",
+			"errorCode": TokenBadCredencial,
 		})
 	}
 
@@ -137,7 +153,8 @@ func CreateUser(c *fiber.Ctx) error {
 	hashPassword, err := HashPassword(user.Password)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "user cannot be create",
+			"message":   "User cannot be create",
+			"errorCode": UserCannotCreate,
 		})
 	}
 
@@ -146,7 +163,8 @@ func CreateUser(c *fiber.Ctx) error {
 
 	if database.DB.Db.Create(&user); user.ID == 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "user cannot be create",
+			"message":   "User cannot be create",
+			"errorCode": UserCannotCreate,
 		})
 	}
 
@@ -180,7 +198,8 @@ func GetUsers(c *fiber.Ctx) error {
 
 	if !admin {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "Unauthorized request",
+			"message":   "Unauthorized request",
+			"errorCode": UserUnauthorizeRequest,
 		})
 	}
 
@@ -205,7 +224,10 @@ func GetUsers(c *fiber.Ctx) error {
 func GetUserWithId(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
 	if err != nil || id < 0 {
-		return c.Status(fiber.StatusNotFound).JSON("please ensure that id is a positive integer")
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message":   "Please ensure that id is a positive integer",
+			"errorCode": UserInvalidId,
+		})
 	}
 
 	userId := uint64(id)
@@ -223,14 +245,20 @@ func GetUserWithId(c *fiber.Ctx) error {
 func ModifyUserWithId(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
 	if err != nil || id < 0 {
-		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message":   err.Error(),
+			"errorCode": UserInvalidId,
+		})
 	}
 
 	userId := uint64(id)
 
 	var user models.User
 	if err := FindUser(userId, &user); err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(err.Error())
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message":   err.Error(),
+			"errorCode": UserNotFound,
+		})
 	}
 
 	type UpdateFields struct {
@@ -242,7 +270,10 @@ func ModifyUserWithId(c *fiber.Ctx) error {
 	var updateData UpdateFields
 
 	if c.BodyParser(&updateData); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message":   err.Error(),
+			"errorCode": ModifyBodyParse,
+		})
 	}
 
 	user.FullName = updateData.FullName
@@ -258,7 +289,10 @@ func ModifyUserWithId(c *fiber.Ctx) error {
 func DeleteUserWithId(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
 	if err != nil || id < 0 {
-		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message":   err.Error(),
+			"errorCode": UserInvalidId,
+		})
 	}
 
 	userId := uint64(id)
