@@ -3,8 +3,6 @@ info:
   title: PetSitter API
   version: "0.1"
 tags:
-  - name: Welcome
-    description: Welcome
   - name: Users
     description: User-related operations
   - name: Jobs
@@ -12,16 +10,6 @@ tags:
 servers:
   - url: http://localhost:3000/
 paths:
-  /welcome:
-    get:
-      tags:
-        - Welcome
-      summary: Welcome Message
-      operationId: Welcome
-      security: []
-      responses:
-        "200":
-          description: Welcome to the PetSitter API
   /token:
     post:
       tags:
